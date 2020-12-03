@@ -212,7 +212,7 @@ module led_display_controller
         end else begin
             transition_reset            = !i_reset_n;
             transition_init             = state == STATE_RESET && i_reset_n;
-            transition_digit_1          = state == STATE_INIT && i_reset_n;
+            transition_digit_1          = state == STATE_INIT && i_reset_n && clk_div_leds_did_rise;
             transition_digit_2          = state == STATE_DIGIT_1 && i_reset_n && clk_div_leds_did_rise;
             transition_digit_3          = state == STATE_DIGIT_2 && i_reset_n && clk_div_leds_did_rise;
             transition_digit_4          = state == STATE_DIGIT_3 && i_reset_n && clk_div_leds_did_rise;
