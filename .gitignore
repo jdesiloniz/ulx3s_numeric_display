@@ -1,0 +1,16 @@
+*_prf
+reference_docs
+.DS_Store
+*.DSYM
+*.vcd
+obj_dir
+.vscode
+
+# Sim binaries
+sim/wb_fifo_tb/wb_fifo_tb
+sim/wb_uart_rx_tb/wb_uart_rx_tb
+sim/wb_uart_tx_tb/wb_uart_tx_tb
+
+# KiCAD
+fp-info-cache 
+board/*bak
