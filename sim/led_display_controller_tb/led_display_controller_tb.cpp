@@ -14,6 +14,8 @@
 #include "testb.h"
 #include "hc164.h"
 
+#define COMMON_ANODE true
+
 using namespace std;
 
 bool extract_bit(unsigned source, unsigned bit_number) {
@@ -35,8 +37,8 @@ char segment_name(unsigned bit) {
 }
 
 void print_led_display(Hc164 *shifter_a, Hc164 *shifter_b) {
-	unsigned shifter_a_output = shifter_a->output_signals;
-	unsigned shifter_b_output = shifter_b->output_signals;
+	unsigned shifter_a_output = COMMON_ANODE ? ~(shifter_a->output_signals) & 0xFF : shifter_a->output_signals;
+	unsigned shifter_b_output = COMMON_ANODE ? ~(shifter_b->output_signals) & 0xFF : shifter_b->output_signals;
 
 	unsigned segment_digit;
 
@@ -53,7 +55,7 @@ void print_led_display(Hc164 *shifter_a, Hc164 *shifter_b) {
 		bool segment = extract_bit(shifter_b_output, i);
 		char name = segment_name(i);
 
-		printf(" %c:[%d]", name, (unsigned)segment);
+		printf("%c:[%d]", name, (unsigned)segment);
 	}
 
 	printf("\n");

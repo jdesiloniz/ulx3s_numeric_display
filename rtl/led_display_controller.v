@@ -18,12 +18,13 @@ module led_display_controller
 #(
     `ifdef verilator
     parameter LED_DISPLAY_DIV_RATE = 200,     // Reduced refresh rate for simulation
-    parameter LED_DISPLAY_DIV_WIDTH = 8
+    parameter LED_DISPLAY_DIV_WIDTH = 8,
     `else
     // Clock divider rate (set for a master clock of 25MHz):
     parameter LED_DISPLAY_DIV_RATE = 62000,     // Refresh rate for LED displays: 403Hz (around 100Hz per digit)
-    parameter LED_DISPLAY_DIV_WIDTH = 16
+    parameter LED_DISPLAY_DIV_WIDTH = 16,
     `endif
+    parameter COMMON_ANODE = 1'b1             // Common anode LED displays need to invert the signals, use 0 if using common cathode ones
 )(
     `ifdef verilator
     output  reg                 debug_update_leds,
@@ -181,10 +182,10 @@ module led_display_controller
     // Clock/reset redirections
     always @(*) begin
         o_shifter_a_cp      = i_wb_shifter_a_cp_redirect;
-        o_shifter_a_ds      = i_wb_shifter_a_ds_redirect;
+        o_shifter_a_ds      = (COMMON_ANODE == 1'b1) ? ~i_wb_shifter_a_ds_redirect : i_wb_shifter_a_ds_redirect;
         o_shifter_a_mr_n    = i_wb_shifter_a_mr_n_redirect;
         o_shifter_b_cp      = i_wb_shifter_b_cp_redirect;
-        o_shifter_b_ds      = i_wb_shifter_b_ds_redirect;
+        o_shifter_b_ds      = (COMMON_ANODE == 1'b1) ? ~i_wb_shifter_b_ds_redirect : i_wb_shifter_b_ds_redirect;
         o_shifter_b_mr_n    = i_wb_shifter_b_mr_n_redirect;
     end
 
