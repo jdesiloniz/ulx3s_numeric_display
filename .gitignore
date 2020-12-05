@@ -7,10 +7,13 @@ obj_dir
 .vscode
 
 # Sim binaries
-sim/wb_fifo_tb/wb_fifo_tb
-sim/wb_uart_rx_tb/wb_uart_rx_tb
-sim/wb_uart_tx_tb/wb_uart_tx_tb
+sim/wb_hc164_tb/wb_hc164_tb
+sim/led_display_controller_tb/led_display_controller_tb
+sim/led_display_counter_tb/led_display_counter_tb
 
 # KiCAD
 fp-info-cache 
 board/*bak
+
+# NextPNR?
+*.dblite
