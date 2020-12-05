@@ -205,7 +205,7 @@ module wb_hc164
         reset_counter               = transition_preload_1;
         update_counter              = transition_clock_4;
         load_shift_data             = transition_preload_1;
-        shift_data                  = transition_clock_4;
+        shift_data                  = transition_clock_4 && bit_counter > 3'd0;
         clear_shift_data            = transition_become_idle;
         raise_clock                 = transition_clock_1||transition_next_bit;
         lower_clock                 = transition_clock_3;

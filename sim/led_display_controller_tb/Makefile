@@ -1,10 +1,12 @@
 .PHONY: all
 .DELETE_ON_ERROR:
-TOPMOD  := wb_hc164
+TOPMOD  := led_display_controller
 CLDVMOD := clk_divider
 SHFTMOD := shifter
+HC164MD := wb_hc164
 CLDVFIL := $(CLDVMOD).v
 SHFVFIL := $(SHFTMOD).v
+164VFIL := $(HC164MD).v
 VLOGFIL := $(TOPMOD).v
 VLOGDIR := ../../rtl
 VCDFILE := $(TOPMOD).vcd
@@ -35,7 +37,7 @@ VERILATOR_ROOT ?= $(shell bash -c '$(VERILATOR) -V|grep VERILATOR_ROOT | head -1
 VINC := $(VERILATOR_ROOT)/include
 
 $(VDIRFB)/V$(TOPMOD).cpp: $(VLOGDIR)/$(VLOGFIL)
-	$(VERILATOR) $(VFLAGS) -cc $(VLOGDIR)/$(CLDVFIL) $(VLOGDIR)/$(SHFVFIL) $(VLOGDIR)/$(VLOGFIL)
+	$(VERILATOR) $(VFLAGS) -cc $(VLOGDIR)/$(CLDVFIL) $(VLOGDIR)/$(SHFVFIL) $(VLOGDIR)/$(164VFIL) $(VLOGDIR)/$(VLOGFIL)
 
 $(VDIRFB)/$(hc164).a:
 	$(GCC) $(SIMINC)/$(HC164IN).cpp -c -o $(VDIRFB)/$(hc164).a

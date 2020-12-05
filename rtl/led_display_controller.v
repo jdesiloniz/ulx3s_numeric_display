@@ -16,10 +16,18 @@
 
 module led_display_controller
 #(
+    `ifdef verilator
+    parameter LED_DISPLAY_DIV_RATE = 200,     // Reduced refresh rate for simulation
+    parameter LED_DISPLAY_DIV_WIDTH = 8
+    `else
     // Clock divider rate (set for a master clock of 25MHz):
     parameter LED_DISPLAY_DIV_RATE = 62000,     // Refresh rate for LED displays: 403Hz (around 100Hz per digit)
     parameter LED_DISPLAY_DIV_WIDTH = 16
+    `endif
 )(
+    `ifdef verilator
+    output  reg                 debug_update_leds,
+    `endif
     input   wire                i_clk,
     input   wire                i_reset_n,
     
@@ -92,16 +100,20 @@ module led_display_controller
     reg             i_wb_shifter_a_cp_redirect;
     reg             i_wb_shifter_a_ds_redirect;
     reg             i_wb_shifter_a_mr_n_redirect;
+    /* verilator lint_off UNUSED */
     wire            i_wb_shifter_a_ack;
     wire            i_wb_shifter_a_stall;
+    /* verilator lint_on UNUSED */
     reg             o_wb_shifter_b_cyc;
     reg             o_wb_shifter_b_stb;
     reg [7:0]       o_wb_shifter_b_data;
     reg             i_wb_shifter_b_cp_redirect;
     reg             i_wb_shifter_b_ds_redirect;
     reg             i_wb_shifter_b_mr_n_redirect;
+    /* verilator lint_off UNUSED */
     wire            i_wb_shifter_b_ack;
     wire            i_wb_shifter_b_stall;
+    /* verilator lint_on UNUSED */
 
     wb_hc164 #(.CLK_DIV_RATE(1), .CLK_DIV_WIDTH(1)) SHIFTER_A(
         .i_clk              (i_clk),
@@ -249,10 +261,17 @@ module led_display_controller
     always @(*) begin
         reset_clock_divider_leds    = transition_reset;
         start_clock_divider_leds    = transition_init;
-        update_leds                 = transition_digit_1||transition_digit_go_back;
+        update_leds                 = transition_digit_1||transition_digit_2||transition_digit_3||transition_digit_4||transition_digit_go_back;
         update_counter_digits       = transition_digit_1||transition_digit_2||transition_digit_3||transition_digit_4||transition_digit_go_back;
         reset_counter_digits        = transition_reset;
     end
+
+    // Debug stuff
+    `ifdef verilator
+    always @(*) begin
+        debug_update_leds = update_leds;
+    end
+    `endif
 
 /*********************
 * Formal verification
