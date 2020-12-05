@@ -1,0 +1,21 @@
+[tasks]
+prf
+
+[options]
+prf: mode prove
+depth 40
+
+[engines]
+smtbmc
+
+[script]
+read_verilog -DLED_DISPLAY_counter -formal shifter.v clk_divider.v wb_hc164.v led_display_controller.v numeric_led_display_controller.v led_display_counter.v
+prep -top led_display_counter
+
+[files]
+clk_divider.v
+shifter.v
+wb_hc164.v
+led_display_controller.v
+numeric_led_display_controller.v
+led_display_counter.v
