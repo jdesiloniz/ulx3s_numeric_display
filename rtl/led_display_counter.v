@@ -35,18 +35,12 @@ module led_display_counter
     reg reset_clk_divider;
 
     // Counter
-    /* verilator lint_off UNOPTFLAT */
     reg     [15:0]                   o_counter;
-    /* verilator lint_on UNOPTFLAT */
-    reg     [15:0]                   temp_counter_reset;
-    reg     [15:0]                   temp_counter_update;
-    always @(*) begin
-        temp_counter_reset      = (reset_counter) ? 16'b0 : o_counter;
-        temp_counter_update     = (update_counter) ? o_counter + 16'h1 : temp_counter_reset;
-    end
-
     always @(posedge i_clk) begin
-        o_counter               <= (i_reset_n) ? temp_counter_update : 16'b0;
+        if (!i_reset_n||reset_counter)
+            o_counter <= 16'b0;
+        else if (update_counter)
+            o_counter <= o_counter + 16'h1;
     end
 
     // Clock divider for time:
@@ -98,10 +92,7 @@ module led_display_counter
     localparam STATE_WAIT_STARTUP   = 2'd2;
     localparam STATE_COUNT          = 2'd3;
 
-    reg     [1:0]   state;
-    /* verilator lint_off UNOPTFLAT */
-    reg     [1:0]   state_next;
-    /* verilator lint_on UNOPTFLAT */
+    reg     [1:0]   state = STATE_RESET;
       
     reg transition_init;
     reg transition_init_counter;
@@ -124,26 +115,19 @@ module led_display_counter
     end
 
     // Applying state transitions
-    always @(*) begin
-        if (!i_reset_n) begin
-            state_next = STATE_RESET;
-        end else begin
-            // Avoid illegal states:
-            //state_next = (state > STATE_COUNT) ? STATE_RESET : state_next;
-
-            state_next = (transition_init)              ? STATE_INIT_COUNTER : state_next;
-            state_next = (transition_init_counter)      ? STATE_WAIT_STARTUP : state_next;
-            state_next = (transition_start_count)       ? STATE_COUNT : state_next;
-            state_next = (transition_update_counter)    ? STATE_COUNT : state_next;
-        end
-    end
-
     always @(posedge i_clk) begin
         if (!i_reset_n) begin
             state <= STATE_RESET;
         end else begin
-            state <= state_next;
-        end        
+            if (transition_init)
+                state <= STATE_INIT_COUNTER;
+            else if (transition_init_counter)
+                state <= STATE_WAIT_STARTUP;
+            else if (transition_start_count)
+                state <= STATE_COUNT;
+            else if (transition_update_counter)
+                state <= STATE_COUNT;
+        end
     end
 
     // Control signals for data path

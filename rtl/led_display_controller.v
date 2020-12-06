@@ -57,18 +57,12 @@ module led_display_controller
     reg                             reset_counter_digits;
 
     // Digit counter
-    /* verilator lint_off UNOPTFLAT */
-    reg     [1:0]                   digit_counter;
-    /* verilator lint_on UNOPTFLAT */
-    reg     [1:0]                   temp_digit_counter_reset;
-    reg     [1:0]                   temp_digit_counter_update;
-    always @(*) begin
-        temp_digit_counter_reset      = (reset_counter_digits) ? 2'd3 : digit_counter;
-        temp_digit_counter_update     = (update_counter_digits) ? digit_counter - 1'b1 : temp_digit_counter_reset;
-    end
-
+    reg     [1:0]                   digit_counter = 2'd3;
     always @(posedge i_clk) begin
-        digit_counter                 <= (i_reset_n) ? temp_digit_counter_update : 2'd3;
+        if (!i_reset_n||reset_counter_digits) 
+            digit_counter <= 2'd3;
+        else if (update_counter_digits)
+            digit_counter <= digit_counter - 1'b1;
     end
 
     // Clock divider for LEDs:
@@ -199,10 +193,7 @@ module led_display_controller
     localparam STATE_DIGIT_3        = 3'd4;
     localparam STATE_DIGIT_4        = 3'd5;
 
-    reg     [2:0]   state;
-    /* verilator lint_off UNOPTFLAT */
-    reg     [2:0]   state_next;
-    /* verilator lint_on UNOPTFLAT */
+    reg     [2:0]   state = STATE_RESET;
 
     reg transition_reset;        
     reg transition_init;        
@@ -234,30 +225,27 @@ module led_display_controller
     end
 
     // Applying state transitions
-    always @(*) begin
-        if (!i_reset_n) begin
-            state_next = STATE_RESET;
-        end else begin
-            // Avoid illegal states:
-            state_next = (state > STATE_DIGIT_4) ? STATE_RESET : state_next;
-
-            state_next = (transition_reset)         ? STATE_RESET : state_next;
-            state_next = (transition_init)          ? STATE_INIT : state_next;
-            state_next = (transition_digit_1)       ? STATE_DIGIT_1 : state_next;
-            state_next = (transition_digit_2)       ? STATE_DIGIT_2 : state_next;
-            state_next = (transition_digit_3)       ? STATE_DIGIT_3 : state_next;
-            state_next = (transition_digit_4)       ? STATE_DIGIT_4 : state_next;
-            state_next = (transition_digit_go_back) ? STATE_DIGIT_1 : state_next;
-        end
-    end
-
     always @(posedge i_clk) begin
         if (!i_reset_n) begin
             state <= STATE_RESET;
         end else begin
-            state <= state_next;
-        end        
+            if (transition_reset)
+                state <= STATE_RESET;
+            else if (transition_init)
+                state <= STATE_INIT;
+            else if (transition_digit_1)
+                state <= STATE_DIGIT_1;
+            else if (transition_digit_2)
+                state <= STATE_DIGIT_2;
+            else if (transition_digit_3)
+                state <= STATE_DIGIT_3;
+            else if (transition_digit_4)
+                state <= STATE_DIGIT_4;
+            else if (transition_digit_go_back)
+                state <= STATE_DIGIT_1;
+        end
     end
+
     // Control signals for data path
     always @(*) begin
         reset_clock_divider_leds    = transition_reset;

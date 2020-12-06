@@ -28,14 +28,13 @@ module top
     // We'll be using clock/reset signals from one of the shifter generators, as they're both the same
     reg o_shifter_b_cp;    
     reg o_shifter_b_mr_n;
-    reg o_shifter_a_ds;
     led_display_counter #(.TIME_CLK_DIV_RATE(TIME_CLK_DIV_RATE), .TIME_CLK_DIV_WIDTH(TIME_CLK_DIV_WIDTH)) DISPLAY(
         .i_clk              (clk_25mhz),
         .i_reset_n          (i_reset_n),
-        .o_shifter_a_ds     (o_shifter_a_ds),
-        .o_shifter_b_ds     (oled_dc),
-        .o_shifter_a_cp     (oled_mosi),
-        .o_shifter_b_cp     (oled_clk),
+        .o_shifter_a_ds     (oled_dc),
+        .o_shifter_b_ds     (oled_mosi),
+        .o_shifter_a_cp     (oled_clk),
+        .o_shifter_b_cp     (o_shifter_b_cp),
         .o_shifter_a_mr_n   (oled_resn),
         .o_shifter_b_mr_n   (o_shifter_b_mr_n)
     );
