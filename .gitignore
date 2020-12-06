@@ -11,6 +11,10 @@ sim/wb_hc164_tb/wb_hc164_tb
 sim/led_display_controller_tb/led_display_controller_tb
 sim/led_display_counter_tb/led_display_counter_tb
 
+# NextPNR/Yosys binaries
+hardware.config
+hardware.bit
+
 # KiCAD
 fp-info-cache 
 board/*bak

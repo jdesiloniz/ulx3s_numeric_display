@@ -16,6 +16,7 @@ module shifter
 #(
     parameter DATA_WIDTH = 10
 )(
+    input   wire                        i_clk,
     input	wire	[DATA_WIDTH-1:0]	i_data,
     input   wire    [2:0]               i_op,
 	output	reg 	[DATA_WIDTH-1:0]	o_data
@@ -30,15 +31,15 @@ module shifter
     localparam OP_ROTATE_LEFT       = 3'd4;
     localparam OP_ROTATE_RIGHT      = 3'd5;    
 
-    always @(*) begin
+    always @(posedge i_clk) begin
         case (i_op)
-            OP_SHIFT_LEFT_ZERO:     o_data = {i_data[DATA_WIDTH-2:0], 1'b0};
-            OP_SHIFT_RIGHT_ZERO:    o_data = {1'b0, i_data[DATA_WIDTH-1:1]};
-            OP_SHIFT_LEFT_ONE:      o_data = {i_data[DATA_WIDTH-2:0], 1'b1};
-            OP_SHIFT_RIGHT_ONE:     o_data = {1'b1, i_data[DATA_WIDTH-1:1]};
-            OP_ROTATE_LEFT:         o_data = {i_data[DATA_WIDTH-2:0], i_data[DATA_WIDTH-1]};
-            OP_ROTATE_RIGHT:        o_data = {i_data[0], i_data[DATA_WIDTH-1:1]};
-            default:                o_data = i_data;
+            OP_SHIFT_LEFT_ZERO:     o_data <= {i_data[DATA_WIDTH-2:0], 1'b0};
+            OP_SHIFT_RIGHT_ZERO:    o_data <= {1'b0, i_data[DATA_WIDTH-1:1]};
+            OP_SHIFT_LEFT_ONE:      o_data <= {i_data[DATA_WIDTH-2:0], 1'b1};
+            OP_SHIFT_RIGHT_ONE:     o_data <= {1'b1, i_data[DATA_WIDTH-1:1]};
+            OP_ROTATE_LEFT:         o_data <= {i_data[DATA_WIDTH-2:0], i_data[DATA_WIDTH-1]};
+            OP_ROTATE_RIGHT:        o_data <= {i_data[0], i_data[DATA_WIDTH-1:1]};
+            default:                o_data <= i_data;
         endcase     
     end
 

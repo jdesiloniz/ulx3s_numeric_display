@@ -98,9 +98,9 @@ module led_display_controller
     reg             o_wb_shifter_a_cyc;
     reg             o_wb_shifter_a_stb;
     reg [7:0]       o_wb_shifter_a_data;
-    reg             i_wb_shifter_a_cp_redirect;
-    reg             i_wb_shifter_a_ds_redirect;
-    reg             i_wb_shifter_a_mr_n_redirect;
+    wire            i_wb_shifter_a_cp_redirect;
+    wire            i_wb_shifter_a_ds_redirect;
+    wire            i_wb_shifter_a_mr_n_redirect;
     /* verilator lint_off UNUSED */
     wire            i_wb_shifter_a_ack;
     wire            i_wb_shifter_a_stall;
@@ -108,9 +108,9 @@ module led_display_controller
     reg             o_wb_shifter_b_cyc;
     reg             o_wb_shifter_b_stb;
     reg [7:0]       o_wb_shifter_b_data;
-    reg             i_wb_shifter_b_cp_redirect;
-    reg             i_wb_shifter_b_ds_redirect;
-    reg             i_wb_shifter_b_mr_n_redirect;
+    wire            i_wb_shifter_b_cp_redirect;
+    wire            i_wb_shifter_b_ds_redirect;
+    wire            i_wb_shifter_b_mr_n_redirect;
     /* verilator lint_off UNUSED */
     wire            i_wb_shifter_b_ack;
     wire            i_wb_shifter_b_stall;

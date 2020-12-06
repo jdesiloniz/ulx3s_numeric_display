@@ -19,9 +19,7 @@ module wb_hc164
 
     // Output signals to the device
     output  reg                             o_shifter_ds,       // Actual bit to send
-    /* verilator lint_off UNOPTFLAT */
-    output  reg                             o_shifter_cp,       // Clock signal
-    /* verilator lint_on UNOPTFLAT */
+    output  reg                             o_shifter_cp = 1'b1,       // Clock signal
     output  reg                             o_shifter_mr_n      // Reset (active low)
 );
     /******************
@@ -38,47 +36,42 @@ module wb_hc164
     reg                             lower_clock;
 
     // Counter handling
-    /* verilator lint_off UNOPTFLAT */
-    reg     [2:0]                   bit_counter;
-    /* verilator lint_on UNOPTFLAT */
-    reg     [2:0]                   temp_bit_counter_reset;
-    reg     [2:0]                   temp_bit_counter_update;
-    always @(*) begin
-        temp_bit_counter_reset      = (reset_counter) ? 3'd7 : bit_counter;
-        temp_bit_counter_update     = (update_counter) ? bit_counter - 1'b1 : temp_bit_counter_reset;
-    end
-
+    reg     [2:0]                   bit_counter = 3'd7;
     always @(posedge i_clk) begin
-        bit_counter                 <= (i_reset_n) ? temp_bit_counter_update : 3'd7;
+        if (!i_reset_n)
+            bit_counter <= 3'd7;
+        else if (reset_counter)
+            bit_counter <= 3'd7;
+        else if (update_counter)
+            bit_counter <= bit_counter - 1'b1;
     end
 
     // Bit shifter
-    /* verilator lint_off UNOPTFLAT */
     reg     [7:0]    o_shifter_data;
-    /* verilator lint_on UNOPTFLAT */
     reg     [2:0]    o_shifter_op;
     wire    [7:0]    i_shifter_data;
 
     shifter #(.DATA_WIDTH(8)) SHIFTER(
+        .i_clk          (i_clk),
         .o_data         (i_shifter_data),
         .i_op           (o_shifter_op),
         .i_data         (o_shifter_data)
     );
 
-    reg     [7:0]    temp_shifter_data_clear;
-    reg     [7:0]    temp_shifter_data_load;
-
     always @(*) begin
-        temp_shifter_data_clear         = clear_shift_data ? 8'b0 : o_shifter_data;
-        temp_shifter_data_load          = load_shift_data ? i_wb_data : temp_shifter_data_clear;
         o_shifter_op                    = 3'd3; // Shift to right, padding with 1'b1
-
-        // Output signal
         o_shifter_ds                    = (i_reset_n && state > STATE_IDLE) ? o_shifter_data[0] : 1'b0;
     end
 
     always @(posedge i_clk) begin
-        o_shifter_data <= shift_data ? i_shifter_data : temp_shifter_data_load;
+        if (!i_reset_n)
+            o_shifter_data <= 8'b0;
+        else if (clear_shift_data)
+            o_shifter_data <= 8'b0;
+        else if (load_shift_data)
+            o_shifter_data <= i_wb_data;
+        else if (shift_data)
+            o_shifter_data <= i_shifter_data;
     end
 
     // Clock divider
@@ -105,16 +98,13 @@ module wb_hc164
     end
 
     // External clock
-    reg temp_cp_raise;
-    reg temp_cp_lower;
-
-    always @(*) begin
-        temp_cp_raise     = (raise_clock) ? 1'b1 : o_shifter_cp;
-        temp_cp_lower     = (lower_clock) ? 1'b0 : temp_cp_raise;
-    end
-
     always @(posedge i_clk) begin
-        o_shifter_cp      <= (i_reset_n) ? temp_cp_lower : 1'b0;
+        if (!i_reset_n)
+            o_shifter_cp <= 1'b0;
+        else if (raise_clock)
+            o_shifter_cp <= 1'b1;
+        else if (lower_clock)
+            o_shifter_cp <= 1'b0;
     end
 
     /******************
@@ -128,10 +118,7 @@ module wb_hc164
     localparam STATE_CLOCK_3        = 3'd5;
     localparam STATE_CLOCK_4        = 3'd6;
 
-    reg     [2:0]   state;
-    /* verilator lint_off UNOPTFLAT */
-    reg     [2:0]   state_next;
-    /* verilator lint_on UNOPTFLAT */
+    reg     [2:0]   state = STATE_IDLE;
 
     reg transition_preload_1;        
     reg transition_preload_2;        
@@ -172,30 +159,27 @@ module wb_hc164
     end
 
     // Applying state transitions
-    always @(*) begin
-        if (!i_reset_n) begin
-            state_next = STATE_IDLE;
-        end else begin
-            // Avoid illegal states:
-            state_next = (state > STATE_CLOCK_4) ? STATE_IDLE : state_next;
-
-            state_next = (transition_preload_1)     ? STATE_PRELOAD_1 : state_next;
-            state_next = (transition_preload_2)     ? STATE_PRELOAD_2 : state_next;
-            state_next = (transition_clock_1)       ? STATE_CLOCK_1 : state_next;
-            state_next = (transition_clock_2)       ? STATE_CLOCK_2 : state_next;
-            state_next = (transition_clock_3)       ? STATE_CLOCK_3 : state_next;
-            state_next = (transition_clock_4)       ? STATE_CLOCK_4 : state_next;
-            state_next = (transition_become_idle)   ? STATE_IDLE : state_next;
-            state_next = (transition_next_bit)      ? STATE_CLOCK_1 : state_next;
-        end
-    end
-
     always @(posedge i_clk) begin
         if (!i_reset_n) begin
             state <= STATE_IDLE;
         end else begin
-            state <= state_next;
-        end        
+            if (transition_preload_1)
+                state <= STATE_PRELOAD_1;
+            else if (transition_preload_2)
+                state <= STATE_PRELOAD_2;
+            else if (transition_clock_1)
+                state <= STATE_CLOCK_1;
+            else if (transition_clock_2)
+                state <= STATE_CLOCK_2;
+            else if (transition_clock_3)
+                state <= STATE_CLOCK_3;
+            else if (transition_clock_4)
+                state <= STATE_CLOCK_4;
+            else if (transition_become_idle)
+                state <= STATE_IDLE;
+            else if (transition_next_bit)
+                state <= STATE_CLOCK_1;
+        end
     end
 
     // Control signals for data path
