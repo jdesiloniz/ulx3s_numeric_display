@@ -19,7 +19,7 @@ module wb_hc164
 
     // Output signals to the device
     output  reg                             o_shifter_ds,       // Actual bit to send
-    output  reg                             o_shifter_cp = 1'b1,       // Clock signal
+    output  reg                             o_shifter_cp,       // Clock signal
     output  reg                             o_shifter_mr_n      // Reset (active low)
 );
     /******************

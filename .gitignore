@@ -14,6 +14,7 @@ sim/led_display_counter_tb/led_display_counter_tb
 # NextPNR/Yosys binaries
 hardware.config
 hardware.bit
+hardware.json
 
 # KiCAD
 fp-info-cache 
