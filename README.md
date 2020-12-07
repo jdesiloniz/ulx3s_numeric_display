@@ -16,7 +16,7 @@ In order to be able to interface one of these displays you need 12 pins, so the 
 - `wb_hc164`: module that interfaces communication with 74HC164N ICs using a simplified Wishbone bus.
 - `led_display_controller`: module to drive the LED display through two 74HC164N. Users can place raw segment data for each one of the digits.
 - `numeric_led_display_controller`: small wrapper on top of the previous module. Users just need to pass a 16 bit number and it'll be displayed in hexadecimal form by the LED display.
-- `top`: an example of using these, dislaying a second counter.
+- `top`: an example of using these, displaying a second counter.
 
 ## Board
 
