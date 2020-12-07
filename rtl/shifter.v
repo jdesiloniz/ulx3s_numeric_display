@@ -45,56 +45,63 @@ module shifter
 
 `ifdef FORMAL
 `ifdef SHIFTER
+    reg f_past_valid;
+	initial f_past_valid = 0;
+
+	always @(posedge i_clk) begin
+		f_past_valid <= 1'b1;
+	end
+
     // No op condition
-    always @(*)
-        if (i_op > OP_ROTATE_RIGHT)
-            assert(o_data == i_data);
+    always @(posedge i_clk)
+        if (f_past_valid && $past(i_op > OP_ROTATE_RIGHT))
+            assert(o_data == $past(i_data));
 
     // Shift left with zero padding
-    always @(*) begin
-        if (i_op == OP_SHIFT_LEFT_ZERO) begin
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_SHIFT_LEFT_ZERO)) begin
             assert(o_data[0] == 1'b0);
-            assert(o_data[DATA_WIDTH-1:1] == i_data[DATA_WIDTH-2:0]);
+            assert(o_data[DATA_WIDTH-1:1] == $past(i_data[DATA_WIDTH-2:0]));
         end
     end
 
     // Shift left with one padding
-    always @(*) begin
-        if (i_op == OP_SHIFT_LEFT_ONE) begin
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_SHIFT_LEFT_ONE)) begin
             assert(o_data[0] == 1'b1);
-            assert(o_data[DATA_WIDTH-1:1] == i_data[DATA_WIDTH-2:0]);
+            assert(o_data[DATA_WIDTH-1:1] == $past(i_data[DATA_WIDTH-2:0]));
         end
     end
 
     // Shift right with zero padding
-    always @(*) begin
-        if (i_op == OP_SHIFT_RIGHT_ZERO) begin
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_SHIFT_RIGHT_ZERO)) begin
             assert(o_data[DATA_WIDTH-1] == 1'b0);
-            assert(o_data[DATA_WIDTH-2:0] == i_data[DATA_WIDTH-1:1]);
+            assert(o_data[DATA_WIDTH-2:0] == $past(i_data[DATA_WIDTH-1:1]));
         end
     end
 
     // Shift right with one padding
-    always @(*) begin
-        if (i_op == OP_SHIFT_RIGHT_ONE) begin
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_SHIFT_RIGHT_ONE)) begin
             assert(o_data[DATA_WIDTH-1] == 1'b1);
-            assert(o_data[DATA_WIDTH-2:0] == i_data[DATA_WIDTH-1:1]);
+            assert(o_data[DATA_WIDTH-2:0] == $past(i_data[DATA_WIDTH-1:1]));
         end
     end
 
     // Rotate left
-    always @(*) begin
-        if (i_op == OP_ROTATE_LEFT) begin
-            assert(o_data[0] == i_data[DATA_WIDTH-1]);
-            assert(o_data[DATA_WIDTH-1:1] == i_data[DATA_WIDTH-2:0]);
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_ROTATE_LEFT)) begin
+            assert(o_data[0] == $past(i_data[DATA_WIDTH-1]));
+            assert(o_data[DATA_WIDTH-1:1] == $past(i_data[DATA_WIDTH-2:0]));
         end
     end
 
     // Rotate right
-    always @(*) begin
-        if (i_op == OP_ROTATE_RIGHT) begin
-            assert(o_data[DATA_WIDTH-1] == i_data[0]);
-            assert(o_data[DATA_WIDTH-2:0] == i_data[DATA_WIDTH-1:1]);
+    always @(posedge i_clk) begin
+        if (f_past_valid && $past(i_op == OP_ROTATE_RIGHT)) begin
+            assert(o_data[DATA_WIDTH-1] == $past(i_data[0]));
+            assert(o_data[DATA_WIDTH-2:0] == $past(i_data[DATA_WIDTH-1:1]));
         end
     end
 

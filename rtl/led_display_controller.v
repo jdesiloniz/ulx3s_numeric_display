@@ -226,7 +226,7 @@ module led_display_controller
 
     // Applying state transitions
     always @(posedge i_clk) begin
-        if (!i_reset_n) begin
+        if (!i_reset_n||state > STATE_DIGIT_4) begin
             state <= STATE_RESET;
         end else begin
             if (transition_reset)
