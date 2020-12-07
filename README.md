@@ -2,7 +2,7 @@
 
 ![Running on a breadboard](img/display.gif)
 
-The goal of this project is to be able to use 4-digit 7-segment displays as an easy and quick method of debugging/data display. OLED screens are really convenient but they require more complex logic and memory buffers to contain the graphical data, so I think having these displays as an alternative for simple debugging can help a lot for quick iteration and debugging.
+The goal of this project is to be able to use 4-digit 7-segment displays with the [ULX3S FPGA board](https://ulx3s.github.io/) as an easy and quick method of debugging/data display. OLED screens are really convenient but they require more complex logic and memory buffers to contain the graphical data, so I think having these displays as an alternative for simple debugging can help a lot for quick iteration and debugging.
 
 ## Design
 
@@ -25,3 +25,7 @@ This design is meant to work with a common-anode display by default. Using commo
 Warning: the PCB hasn't been tested yet, but the design has been found to work using a breadboard. I'll update this as soon as I get it built and running :). If in any case you want to play this, KiCAD design files are [available here](board).
 
 The board is intended to be used with a common-anode display. Using a common-cathode display is possible but it'd require to change the layout of the transistors (to use NPN ones).
+
+## Use
+
+You're free to use any of these modules for your own projects, modify them or whatever. But it'd be nice if you at least drop a mention! Also, I can't guarantee that this won't break anything... it didn't in my case! :D
